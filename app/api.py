@@ -77,8 +77,9 @@ class ExtensionActions(Resource):
             timestamp = str(event['metadata']['timeStamp'])
             events[idx]['metadata']['timeStamp'] = timestamp
             obj = {
-                    'match': event['indicatorMatch'],
+                   'match': event['indicatorMatch'],
                    'type': metadata['type'],
+                   'url': metadata['url'],
                    'method': metadata['method'].lower(),
                    'time': event['analysisTime'],
                    'userAgent': event['userAgent'],
