@@ -67,9 +67,6 @@ class ExtensionActions(Resource):
     def post(self):
         """Save the events into the local database."""
         args = request.get_json(force=True)
-        auth = check_auth(args)
-        if not auth['success']:
-            return auth
         events = args.get('events', list())
         if len(events) == 0:
             return {'success': False, 'message': "No events sent in"}
@@ -79,10 +76,14 @@ class ExtensionActions(Resource):
             metadata = event['metadata']
             timestamp = str(event['metadata']['timeStamp'])
             events[idx]['metadata']['timeStamp'] = timestamp
-            obj = {'match': event['indicatorMatch'],
+            obj = {
+                    'match': event['indicatorMatch'],
                    'type': metadata['type'],
                    'method': metadata['method'].lower(),
-                   'time': event['analysisTime'], 'ip': request.remote_addr}
+                   'time': event['analysisTime'],
+                   'userAgent': event['userAgent'],
+                   'ip': request.remote_addr
+            }
             mongo.db.events.insert(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
         return {'success': True, 'message': mesg}
