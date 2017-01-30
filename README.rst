@@ -31,18 +31,6 @@ Endpoints
 The following endpoints are exposed via this local node:
 
 - **/get-indicators**: Lists all the indicators for Blockade to consume
-
-    ```json
-    {
-        "indicators": [
-            "8c32e34aa474f279478d41357d7799eb",
-            "37ebc68d21b3f12cc2b4f1055eabb20e",
-            "ece4ddec111e1111d98c8b69638e3e18"]
-        "indicatorCount": 3,
-        "success": true
-    }
-    ```
-
 - **/send-events**: Processes events collected from the browser using Blockade
 - **/admin/add-user**: Add users to the local installation in order to contribute
 - **/admin/add-indicators**: Add indicators to the database from the toolbench_.
