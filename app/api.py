@@ -47,21 +47,15 @@ class ExtensionActions(Resource):
 
     def get(self):
         """Get the indicators from the database."""
-        output = {'success': True, 'indicators': dict(), 'indicatorCount': 0}
+        output = {'success': True, 'indicators': list(), 'indicatorCount': 0}
         indicators = [x for x in mongo.db.indicators.find({}, {'_id': 0})]
         for item in indicators:
             indicator = item.get('indicator', None)
             if not indicator:
                 continue
-            two_bit = indicator[:2]
-            if two_bit in output['indicators']:
-                output['indicators'][two_bit].append(indicator)
-            else:
-                output['indicators'][two_bit] = list()
-                output['indicators'][two_bit].append(indicator)
-            output['indicatorCount'] += 1
-        for key, value in output['indicators'].iteritems():
-            output['indicators'][key] = sorted(value)
+            output['indicators'].append(indicator)
+        output['indicators'] = list(set(output['indicators']))
+        output['indicatorCount'] = len(output['indicators'])
         return output
 
     def post(self):
@@ -140,7 +134,7 @@ class UserManagement(Resource):
         return obj
 
 
-api.add_resource(ExtensionActions, '/get-indicators', '/send-event')
+api.add_resource(ExtensionActions, '/get-indicators', '/send-events')
 api.add_resource(IndicatorIngest, '/admin/add-indicators')
 api.add_resource(UserManagement, '/admin/add-user')
 

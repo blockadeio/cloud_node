@@ -6,3 +6,4 @@ dist/
 setuptools-*
 venv/
 .pypirc
+*.pem
