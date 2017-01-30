@@ -35,4 +35,7 @@ The following endpoints are exposed via this local node:
 - **/admin/add-user**: Add users to the local installation in order to contribute
 - **/admin/add-indicators**: Add indicators to the database from the toolbench_.
 
+For more documentation, including CURL samples, see the wiki_.
+
 .. _toolbench: https://github.com/blockadeio/analyst_toolbench
+.. _wiki: https://github.com/blockadeio/cloud_node/wiki/Endpoints
