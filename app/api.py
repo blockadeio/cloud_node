@@ -71,13 +71,13 @@ class ExtensionActions(Resource):
             timestamp = str(event['metadata']['timeStamp'])
             events[idx]['metadata']['timeStamp'] = timestamp
             obj = {
-                   'match': event['indicatorMatch'],
-                   'type': metadata['type'],
-                   'url': metadata['url'],
-                   'method': metadata['method'].lower(),
-                   'time': event['analysisTime'],
-                   'userAgent': event['userAgent'],
-                   'ip': request.remote_addr
+                'match': event['indicatorMatch'],
+                'type': metadata['type'],
+                'url': metadata['url'],
+                'method': metadata['method'].lower(),
+                'time': event['analysisTime'],
+                'userAgent': event['userAgent'],
+                'ip': request.remote_addr
             }
             mongo.db.events.insert(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
