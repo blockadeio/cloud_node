@@ -8,7 +8,15 @@ Blockade is able to provide blocking capabilities within the Chrome browser by u
 
 Install
 -------
-Check out the repository and install the dependencies using PIP:
+Get virtualenv:
+
+    $ pip install virtualenv
+
+Check out the repository and setup a virtualenv:
+
+    $ virtualenv venv && source venv/bin/activate
+    
+Install the requirements
 
     $ pip install -r requirements.txt
 
