@@ -124,7 +124,6 @@ class EventsManagement(Resource):
             obj = {'url': item['url'], 'ip': item['ip'], 'time': item['time'],
                    'userAgent': item['userAgent'], 'match': item['match']}
             output['events'].append(obj)
-        output['events'] = list(set(events))
         return output
 
 class UserManagement(Resource):
