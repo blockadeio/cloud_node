@@ -114,7 +114,7 @@ class EventsManagement(Resource):
     def get(self):
         """Get recorded events."""
         args = parser.parse_args()
-        auth = check_auth(args, role=["admin"])
+        auth = check_auth(args, role=["analyst", "admin"])
         if not auth['success']:
             return auth
 
