@@ -8,6 +8,11 @@ Blockade is able to provide blocking capabilities within the Chrome browser by u
 
 Install
 -------
+
+Install some depdencies first:
+
+    $ sudo apt install python-pip python-dev libssl-dev mongodb-server
+
 Get virtualenv:
 
     $ pip install virtualenv
