@@ -120,6 +120,10 @@ class EventsManagement(Resource):
 
         output = {'events': list()}
         events = [x for x in mongo.db.events.find({}, {'_id': 0})]
+        for item in events:
+            obj = {'url': item['url'], 'ip': item['ip'], 'time': item['time'],
+                   'userAgent': item['userAgent'], 'match': item['match']}
+            output['events'].append(obj)
         output['events'] = list(set(events))
         return output
 
