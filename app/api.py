@@ -118,12 +118,14 @@ class EventsManagement(Resource):
         if not auth['success']:
             return auth
 
-        output = {'events': list()}
+        output = {'success': True, 'events': list(), 'eventsCount': 0}
         events = [x for x in mongo.db.events.find({}, {'_id': 0})]
         for item in events:
             obj = {'url': item['url'], 'ip': item['ip'], 'time': item['time'],
                    'userAgent': item['userAgent'], 'match': item['match']}
             output['events'].append(obj)
+
+        output['eventsCount'] = len(output['events'])
         return output
 
 class UserManagement(Resource):
