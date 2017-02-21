@@ -107,6 +107,22 @@ class IndicatorIngest(Resource):
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
 
 
+class EventsManagement(Resource):
+
+    """Perform actions related to events."""
+
+    def get(self):
+        """Get recorded events."""
+        args = parser.parse_args()
+        auth = check_auth(args, role=["analyst", "admin"])
+        if not auth['success']:
+            return auth
+
+        output = {'success': True, 'events': list(), 'eventsCount': 0}
+        output['events'] = [x for x in mongo.db.events.find({}, {'_id': 0})]
+        output['eventsCount'] = len(output['events'])
+        return output
+
 class UserManagement(Resource):
 
     """Perform actions related to users."""
@@ -138,6 +154,7 @@ class UserManagement(Resource):
 
 api.add_resource(ExtensionActions, '/get-indicators', '/send-events')
 api.add_resource(IndicatorIngest, '/admin/add-indicators')
+api.add_resource(EventsManagement, '/admin/get-events')
 api.add_resource(UserManagement, '/admin/add-user')
 
 if __name__ == '__main__':
