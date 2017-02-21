@@ -119,12 +119,7 @@ class EventsManagement(Resource):
             return auth
 
         output = {'success': True, 'events': list(), 'eventsCount': 0}
-        events = [x for x in mongo.db.events.find({}, {'_id': 0})]
-        for item in events:
-            obj = {'url': item['url'], 'ip': item['ip'], 'time': item['time'],
-                   'userAgent': item['userAgent'], 'match': item['match']}
-            output['events'].append(obj)
-
+        output['events'] = [x for x in mongo.db.events.find({}, {'_id': 0})]
         output['eventsCount'] = len(output['events'])
         return output
 
