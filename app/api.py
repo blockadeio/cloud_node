@@ -7,8 +7,12 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask_pymongo import PyMongo
 
+CONST_CORE_DB = 'blockade'
+CONST_EXT_KEY = 'EXTMONGO'
+CONST_PYMONGO = 'pymongo'
+
 app = Flask(__name__)
-app.config['MONGO_DBNAME'] = 'blockade'
+app.config['MONGO_DBNAME'] = CONST_CORE_DB
 api = Api(app)
 mongo = PyMongo(app)
 
@@ -41,14 +45,41 @@ def check_auth(args, role=None):
     return {'success': True, 'message': None, 'user': user}
 
 
+def db_setup(f):
+    """Handle tasking before and after any wrapped calls.
+
+    For channels, we want the user to be able to specify which database to
+    pull or send data to based on the URL slug. After loading a PyMongo
+    instance, it will pollute the session space and throw errors unless cleaned
+    up. Wrapping methods that require the database to be dynamic lets us do
+    the needed session setup and tear-down for any call.
+    """
+    def wrapper(self, sub_id=None):
+        if not sub_id:
+            sub_id = CONST_CORE_DB
+        # Silently drop any non-DB name characters
+        sub_id = ''.join(e for e in sub_id if e.isalnum() or e == '_')
+        app.config[CONST_EXT_KEY + "_DBNAME"] = sub_id
+        ext_mongo = PyMongo(app, config_prefix=CONST_EXT_KEY)
+        results = f(self, ext_mongo)
+        for key in app.config.keys():
+            if not key.startswith(CONST_EXT_KEY):
+                continue
+            app.config.pop(key, None)
+        app.extensions[CONST_PYMONGO].pop(CONST_EXT_KEY, None)
+        return results
+    return wrapper
+
+
 class ExtensionActions(Resource):
 
     """Endpoints for the pubic uses for information."""
 
-    def get(self):
+    @db_setup
+    def get(self, ext_mongo):
         """Get the indicators from the database."""
         output = {'success': True, 'indicators': list(), 'indicatorCount': 0}
-        indicators = [x for x in mongo.db.indicators.find({}, {'_id': 0})]
+        indicators = [x for x in ext_mongo.db.indicators.find({}, {'_id': 0})]
         for item in indicators:
             indicator = item.get('indicator', None)
             if not indicator:
@@ -58,7 +89,8 @@ class ExtensionActions(Resource):
         output['indicatorCount'] = len(output['indicators'])
         return output
 
-    def post(self):
+    @db_setup
+    def post(self, ext_mongo):
         """Save the events into the local database."""
         args = request.get_json(force=True)
         events = args.get('events', list())
@@ -79,7 +111,7 @@ class ExtensionActions(Resource):
                 'userAgent': event['userAgent'],
                 'ip': request.remote_addr
             }
-            mongo.db.events.insert(obj)
+            ext_mongo.db.events.insert(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
         return {'success': True, 'message': mesg}
 
@@ -136,7 +168,9 @@ class UserManagement(Resource):
         return obj
 
 
-api.add_resource(ExtensionActions, '/get-indicators', '/send-events')
+api.add_resource(ExtensionActions, '/<string:sub_id>/get-indicators',
+                                   '/<string:sub_id>/send-events',
+                                   '/get-indicators', '/send-events')
 api.add_resource(IndicatorIngest, '/admin/add-indicators')
 api.add_resource(UserManagement, '/admin/add-user')
 

@@ -30,9 +30,11 @@ Endpoints
 ---------
 The following endpoints are exposed via this local node:
 
-- **/get-indicators**: Lists all the indicators for Blockade to consume
-- **/send-events**: Processes events collected from the browser using Blockade
+- **/<optional_db_route>/get-indicators**: Lists all the indicators for Blockade to consume
+- **/<optional_db_route>/send-events**: Processes events collected from the browser using Blockade
 - **/admin/add-user**: Add users to the local installation in order to contribute
 - **/admin/add-indicators**: Add indicators to the database from the toolbench_.
 
 .. _toolbench: https://github.com/blockadeio/analyst_toolbench
+
+For users looking to host multiple databases on a single cloud node, replace the '<optional_db_route>' variable with the name of your database. This name will be used to load the database instance and perform actions on it.
