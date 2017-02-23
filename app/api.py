@@ -71,6 +71,17 @@ def db_setup(f):
     return wrapper
 
 
+def find_ip():
+    """Run through the request to identify the client IP address."""
+    ip = request.environ.get('HTTP_X_REAL_IP', None)
+    if ip:
+        return ip
+    ip = request.access_route
+    if len(ip) > 0:
+        return ip[0]
+    return request.remote_addr
+
+
 class ExtensionActions(Resource):
 
     """Endpoints for the pubic uses for information."""
@@ -96,8 +107,9 @@ class ExtensionActions(Resource):
         events = args.get('events', list())
         if len(events) == 0:
             return {'success': False, 'message': "No events sent in"}
+        client_ip = find_ip()
         for idx, event in enumerate(events):
-            event['sourceIp'] = request.remote_addr
+            event['sourceIp'] = client_ip
             event['event'] = hashlib.sha256(str(event)).hexdigest()
             metadata = event['metadata']
             timestamp = str(event['metadata']['timeStamp'])
@@ -109,7 +121,7 @@ class ExtensionActions(Resource):
                 'method': metadata['method'].lower(),
                 'time': event['analysisTime'],
                 'userAgent': event['userAgent'],
-                'ip': request.remote_addr
+                'ip': client_ip
             }
             ext_mongo.db.events.insert(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
