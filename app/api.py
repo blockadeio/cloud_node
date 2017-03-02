@@ -1,6 +1,9 @@
+#! /usr/bin/env python
+
 """Basic REST API interface for Blockade."""
 import datetime
 import hashlib
+import os
 import random
 from flask import request
 from flask import Flask
@@ -10,9 +13,15 @@ from flask_pymongo import PyMongo
 CONST_CORE_DB = 'blockade'
 CONST_EXT_KEY = 'EXTMONGO'
 CONST_PYMONGO = 'pymongo'
+if os.environ['MONGO_HOST']:
+    CONST_MONGO_HOST = os.environ['MONGO_HOST']
+else:
+    CONST_MONGO_HOST = '127.0.0.1'
 
 app = Flask(__name__)
 app.config['MONGO_DBNAME'] = CONST_CORE_DB
+app.config['MONGO_HOST'] = CONST_MONGO_HOST
+
 api = Api(app)
 mongo = PyMongo(app)
 
@@ -60,6 +69,7 @@ def db_setup(f):
         # Silently drop any non-DB name characters
         sub_id = ''.join(e for e in sub_id if e.isalnum() or e == '_')
         app.config[CONST_EXT_KEY + "_DBNAME"] = sub_id
+        app.config[CONST_EXT_KEY + '_HOST'] = CONST_MONGO_HOST
         ext_mongo = PyMongo(app, config_prefix=CONST_EXT_KEY)
         results = f(self, ext_mongo)
         for key in app.config.keys():
@@ -204,4 +214,4 @@ api.add_resource(EventsManagement, '/admin/get-events')
 api.add_resource(UserManagement, '/admin/add-user')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

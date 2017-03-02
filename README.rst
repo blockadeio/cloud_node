@@ -1,6 +1,6 @@
 Blockade.io Cloud Node
 ======================
-Blockade is able to provide blocking capabilities within the Chrome browser by using a cloud backend controlled by trusted analysts. Blockade subscribes to the "serverless_" concept and uses nothing but Amazon Web Services (AWS_) for all its public functionality. This repository offers an alternative local instance that can be ran on any server with an Internet connection. To learn more about Blockade, visit the project page_.
+Blockade is able to provide blocking capabilities within the Chrome browser by using a cloud backend controlled by trusted analysts. Blockade subscribes to the "serverless_" concept and uses nothing but Amazon Web Services (AWS_) for all its public functionality. This repository offers an alternative local instance that can be run on any server with an Internet connection. To learn more about Blockade, visit the project page_.
 
 .. _serverless: https://aws.amazon.com/lambda/serverless-architectures-learn-more/
 .. _AWS: https://aws.amazon.com
@@ -11,7 +11,7 @@ Install
 
 Install some depdencies first:
 
-    $ sudo apt install python-pip python-dev libssl-dev mongodb-server
+    $ sudo apt install python-pip python-dev libssl-dev libffi-dev mongodb-server
 
 Get virtualenv:
 
@@ -54,3 +54,14 @@ For more documentation, including CURL samples, see the wiki_.
 .. _wiki: https://github.com/blockadeio/cloud_node/wiki/Endpoints
 
 For users looking to host multiple databases on a single cloud node, replace the '<optional_db_route>' variable with the name of your database. This name will be used to load the database instance and perform actions on it.
+
+Docker
+---------
+You can run cloud node in Docker.  To do so, build the container and run it, specifying the mongo host via environment variable::
+    docker build -t cloud_node . 
+    docker run -d -p 5000:5000 --name cloud_node -e MONGO_HOST=<mongo hostname> cloud_node
+
+Mac Note: if you want to run mongo on your localhost, you'll need to specify your machine's actual IP address for the <mongo host>.  Localhost WILL NOT WORK on a mac (but should on Linux).
+
+Docker Note: if you wish to link to a container, called in this example mongo, your command would look like::
+    docker run -d -p 5000:5000 --name cloud_node --link mongo:mongo -e MONGO_HOST=mongo cloud_node
