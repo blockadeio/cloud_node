@@ -55,6 +55,11 @@ For more documentation, including CURL samples, see the wiki_.
 
 For users looking to host multiple databases on a single cloud node, replace the '<optional_db_route>' variable with the name of your database. This name will be used to load the database instance and perform actions on it.
 
+Anything missing?
+-----------------
+.. image:: http://feathub.com/blockadeio/cloud_node?format=svg 
+     :target: http://feathub.com/blockadeio/cloud_node
+
 Docker
 ---------
 You can run cloud node in Docker.  To do so, build the container and run it, specifying the mongo host via environment variable::
