@@ -13,7 +13,7 @@ from flask_pymongo import PyMongo
 CONST_CORE_DB = 'blockade'
 CONST_EXT_KEY = 'EXTMONGO'
 CONST_PYMONGO = 'pymongo'
-if os.environ['MONGO_HOST']:
+if os.environ.get('MONGO_HOST', None):
     CONST_MONGO_HOST = os.environ['MONGO_HOST']
 else:
     CONST_MONGO_HOST = '127.0.0.1'
