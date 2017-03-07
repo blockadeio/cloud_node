@@ -35,6 +35,15 @@ parser.add_argument('user_name')
 parser.add_argument('user_role')
 
 
+def extract_fqdn(url):
+    """Extract the FQDN from a URL."""
+    replace = ['http://', 'https://']
+    for r in replace:
+        url = url.replace(r, '')
+    url = url.split('/')[0]
+    return url
+
+
 def check_auth(args, role=None):
     """Check the user authentication."""
     if mongo.db.users.count() == 0:
@@ -153,6 +162,7 @@ class IndicatorIngest(Resource):
         for item in indicators:
             #  Expecting MD5 indicators, so hash everything else.
             if len(item) != 32:
+                item = extract_fqdn(item)  # Just in case
                 item = hashlib.md5(item).hexdigest()
             obj = {'indicator': item, 'creator': auth['user']['email'],
                    'datetime': current_time}
