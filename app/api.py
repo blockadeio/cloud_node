@@ -211,11 +211,11 @@ class UserManagement(Resource):
         hash_key = "{}{}".format(user_email, seed)
         api_key = hashlib.sha256(hash_key).hexdigest()
         if auth.get('init', False):
-            role = 'admin'
+            user_role = 'admin'
         else:
-            role = 'analyst'
+            user_role = user_role
         obj = {'email': user_email, 'name': user_name, 'api_key': api_key,
-               'role': role}
+               'role': user_role}
         mongo.db.users.insert(obj)
         obj.pop('_id', None)
         return obj
