@@ -38,7 +38,7 @@ parser.add_argument('user_role')
 def check_auth(args, role=None):
     """Check the user authentication."""
     if mongo.db.users.count() == 0:
-        return {'success': True, 'message': None}
+        return {'success': True, 'message': None, 'init': True}
     if not (args.get('email', None) and args.get('api_key', None)):
         mesg = "Invalid request: `email` and `api_key` are required"
         return {'success': False, 'message': mesg}
@@ -200,8 +200,12 @@ class UserManagement(Resource):
         seed = random.randint(100000000, 999999999)
         hash_key = "{}{}".format(user_email, seed)
         api_key = hashlib.sha256(hash_key).hexdigest()
+        if auth.get('init', False):
+            role = 'admin'
+        else:
+            role = 'analyst'
         obj = {'email': user_email, 'name': user_name, 'api_key': api_key,
-               'role': 'analyst'}
+               'role': role}
         mongo.db.users.insert(obj)
         obj.pop('_id', None)
         return obj
