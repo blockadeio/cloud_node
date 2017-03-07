@@ -141,9 +141,9 @@ class IndicatorIngest(Resource):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         indicators = args.get('indicators', list())
         for item in indicators:
-            #  Expecting MD5 indicators, nothing else.
+            #  Expecting MD5 indicators, so hash everything else.
             if len(item) != 32:
-                continue
+                item = hashlib.md5(item).hexdigest()
             obj = {'indicator': item, 'creator': auth['user']['email'],
                    'datetime': current_time}
             mongo.db.indicators.insert(obj)
@@ -166,6 +166,7 @@ class EventsManagement(Resource):
         output['events'] = [x for x in mongo.db.events.find({}, {'_id': 0})]
         output['eventsCount'] = len(output['events'])
         return output
+
 
 class UserManagement(Resource):
 
