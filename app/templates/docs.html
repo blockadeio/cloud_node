@@ -1,0 +1,189 @@
+{% filter markdown %}
+
+# Blockade Cloud Node
+------------------------
+You've stumbled upon a wild Blockade cloud node. This page documents the micro API available on this server and how you can interact with it.
+
+**Endpoints**:
+
+* [/get-indicators](#get-indicators)
+* [/send-events](#send-events)
+* [/admin/add-user](#admin-add-user)
+* [/admin/add-indicators](#admin-add-indicators)
+* [/admin/get-events](#admin-get-events)
+
+## General
+
+These calls are used by the Blockade extension in order to function.
+
+<a name="get-indicators"></a>
+### <h3>`GET` /*:optional-database-name:*/get-indicators</h3>
+
+Get indicators is used by the Chrome Extension in order to build its database of known-bad signatures. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database to pull from.
+
+#### Params
+
+N/A
+
+#### Sample Curl
+
+~~~
+$ curl -X GET "http://localhost:5000/get-indicators"
+~~~
+
+#### Response
+
+~~~
+{
+    "indicators": [
+        "8c32e34aa474f279478d41357d7799eb",
+        "37ebc68d21b3f12cc2b4f1055eabb20e",
+        "ece4ddec111e1111d98c8b69638e3e18"
+    ]
+    "indicatorCount": 3,
+    "success": true
+}
+~~~
+
+<a name="send-events"></a>
+### <h3>`POST` /*:optional-database-name:*/send-events</h3>
+
+Send events is used by the Chrome Extension in order to send alerted events back to the analysts. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database to store data in.
+
+#### Params
+
+* **events (*list* of *dicts*)**: Listing of generated events
+    * **analysisTime (*string*)**: Time of analysis
+    * **userAgent (*string*)**: User-agent of the browser
+    * **indicatorMatch (*string*)**: Indicator that was matched
+    * **metadata** (*dict*): Free-form data collected from the browser
+    * **hashMatch** (*string*): MD5 hash of the indicator match
+
+#### Sample Curl
+
+~~~
+$ curl -X POST "http://localhost:5000/send-events" \
+    --data '{"events":[{"analysisTime":"2017-01-30T07:45:03.496Z","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36","indicatorMatch":"test.blockade.io","metadata":{"frameId":0,"method":"GET","parentFrameId":-1,"requestId":"36572","tabId":735,"timeStamp":1485762303489.0251,"type":"image","url":"http://test.blockade.io/no-face.jpg?29957"},"hashMatch":"ece4ddec111e1111d98c8b69638e3e18"}]}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "success": true,
+    "message": "Wrote 5 events to the cloud"
+}
+~~~
+
+## Administration
+
+Administration endpoints allow users to control details of the cloud node.
+
+<a name="admin-add-user"></a>
+### <h3>`POST` /admin/add-user</h3>
+
+Add users to the local installation in order to contribute indicators.
+
+#### Params
+
+First-time loading:
+
+* **user_email (*string*)**: Email of the administrator
+* **user_name (*string*)**: Name of the administrator
+* **user_role (*string*)**: Role of the user (admin for first time)
+
+Follow-on calls:
+
+* **user_email (*string*)**: Email of the user
+* **user_name (*string*)**: Name of the user
+* **user_role (*string*)**: Role of the user (*admin* or *analyst*)
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+
+#### Sample Curl
+
+~~~
+$ curl -X POST "http://localhost:5000/admin/add-user" \
+    --data '{"user_email": "info@blockade.io", "user_name": "Blockade", "user_role": "admin"}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "api_key" : "00d587c50e41b2722829010665a25042b94544dc5585a326859d562b0e437ac1",
+    "role" : "admin",
+    "email" : "info@blockade.io",
+    "name" : "Blockade"
+}
+~~~
+
+<a name="admin-add-indicators"></a>
+### <h3>`POST` /admin/add-indicators</h3>
+
+Add indicators is an admin-based API to add indicators to the cloud node that are then sent to the Blockade installations. Indicators sent in are instantly sent out to users, so be sure double check what is sent and ensure nothing good is blocked. Indicators stored in Blockade are assumed to be MD5 hashed before being sent in. This endpoint will attempt to detect raw indicators and clean them up for the database.
+
+#### Params
+
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+* **indicators (*list* of *strings*)**: MD5 hashed indicators to save
+
+#### Sample Curl
+
+~~~
+$ curl -X POST "http://localhost:5000/admin/add-indicators" \
+    --data '{"email": "info@blockade.io", "api_key": "foobar", "indicators": ["ece4ddec111e1111d98c8b69638e3e18"]}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "success": true,
+    "message": "Wrote 1 indicators to the cloud"
+}
+~~~
+
+<a name="admin-get-events"></a>
+### <h3>`GET` /admin/get-events</h3>
+
+Get events stored from the local database.
+
+#### Params
+
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+
+#### Sample Curl
+
+~~~
+$ curl -X GET "http://localhost:5000/admin/get-events" \
+    --data '{"email": "info@blockade.io", "api_key": "foobar"}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "events": [
+        {
+            "ip": "142.254.99.55",
+            "match": "www.zhubert.com",
+            "method": "get",
+            "time": "2017-03-06T02:40:02.591Z",
+            "type": "main_frame",
+            "url": "http://www.zhubert.com/blog/2017/02/25/how-to-self-publish-a-novel-in-2017/",
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+        }
+    ],
+    "eventsCount": 1,
+    "success": true
+}
+~~~
+
+{% endfilter %}

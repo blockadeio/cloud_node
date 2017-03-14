@@ -5,10 +5,12 @@ import datetime
 import hashlib
 import os
 import random
-from flask import request
 from flask import Flask
-from flask_restful import Resource, Api, reqparse
+from flask import render_template
+from flask import request
+from flask.ext.misaka import Misaka
 from flask_pymongo import PyMongo
+from flask_restful import Resource, Api, reqparse
 
 CONST_CORE_DB = 'blockade'
 CONST_EXT_KEY = 'EXTMONGO'
@@ -24,6 +26,7 @@ app.config['MONGO_HOST'] = CONST_MONGO_HOST
 
 api = Api(app)
 mongo = PyMongo(app)
+markdown = Misaka(app, wrap=True, fenced_code=True)
 
 parser = reqparse.RequestParser()
 parser.add_argument('api_key')
@@ -33,6 +36,12 @@ parser.add_argument('indicators')
 parser.add_argument('user_email')
 parser.add_argument('user_name')
 parser.add_argument('user_role')
+
+
+@app.route('/')
+def docs():
+    """Render the documentation."""
+    return render_template('docs.html')
 
 
 def extract_fqdn(url):

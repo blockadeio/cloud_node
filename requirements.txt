@@ -4,13 +4,16 @@ click==6.7
 cryptography==1.7.1
 enum34==1.1.6
 Flask==0.12
+Flask-Misaka==0.4.1
 Flask-PyMongo==0.4.1
 Flask-RESTful==0.3.5
 idna==2.2
 ipaddress==1.0.18
 itsdangerous==0.24
 Jinja2==2.9.4
+Markdown==2.6.8
 MarkupSafe==0.23
+misaka==2.1.0
 pyasn1==0.1.9
 pycparser==2.17
 pymongo==3.4.0

@@ -47,8 +47,9 @@ The following endpoints are exposed via this local node:
 - **/<optional_db_route>/send-events**: Processes events collected from the browser using Blockade
 - **/admin/add-user**: Add users to the local installation in order to contribute
 - **/admin/add-indicators**: Add indicators to the database from the toolbench_.
+- **/admin/get-events**: Get saved events from the database
 
-For more documentation, including CURL samples, see the wiki_.
+For more documentation, including CURL samples, start the server and browse it.
 
 .. _toolbench: https://github.com/blockadeio/analyst_toolbench
 .. _wiki: https://github.com/blockadeio/cloud_node/wiki/Endpoints
@@ -57,13 +58,13 @@ For users looking to host multiple databases on a single cloud node, replace the
 
 Anything missing?
 -----------------
-.. image:: http://feathub.com/blockadeio/cloud_node?format=svg 
+.. image:: http://feathub.com/blockadeio/cloud_node?format=svg
      :target: http://feathub.com/blockadeio/cloud_node
 
 Docker
 ---------
 You can run cloud node in Docker.  To do so, build the container and run it, specifying the mongo host via environment variable::
-    docker build -t cloud_node . 
+    docker build -t cloud_node .
     docker run -d -p 5000:5000 --name cloud_node -e MONGO_HOST=<mongo hostname> cloud_node
 
 Mac Note: if you want to run mongo on your localhost, you'll need to specify your machine's actual IP address for the <mongo host>.  Localhost WILL NOT WORK on a mac (but should on Linux).
