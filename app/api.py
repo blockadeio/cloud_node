@@ -149,7 +149,8 @@ class ExtensionActions(Resource):
                 'method': metadata['method'].lower(),
                 'time': event['analysisTime'],
                 'userAgent': event['userAgent'],
-                'ip': client_ip
+                'ip': client_ip,
+                'contact': event['contact']
             }
             ext_mongo.db.events.insert(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
