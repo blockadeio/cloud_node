@@ -11,6 +11,7 @@ You've stumbled upon a wild Blockade cloud node. This page documents the micro A
 * [/admin/add-user](#admin-add-user)
 * [/admin/add-indicators](#admin-add-indicators)
 * [/admin/get-events](#admin-get-events)
+* [/admin/flush-events](#admin-flush-events)
 
 ## General
 
@@ -184,6 +185,32 @@ $ curl -X GET "http://localhost:5000/admin/get-events" \
         }
     ],
     "eventsCount": 1,
+    "success": true
+}
+~~~
+
+<a name="admin-flush-events"></a>
+### <h3>`DELETE` /admin/flush-events</h3>
+
+Flush events stored from the local database.
+
+#### Params
+
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+
+#### Sample Curl
+
+~~~
+$ curl -X DELETE "http://localhost:5000/admin/flush-events" \
+    --data '{"email": "info@blockade.io", "api_key": "foobar"}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
     "success": true
 }
 ~~~
