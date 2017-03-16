@@ -8,7 +8,7 @@ import random
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask.ext.misaka import Misaka
+from flask_misaka import Misaka
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api, reqparse
 
