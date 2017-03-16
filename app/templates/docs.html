@@ -123,9 +123,9 @@ $ curl -X POST "http://localhost:5000/admin/add-user" \
 ~~~
 
 <a name="admin-add-indicators"></a>
-### <h3>`POST` /admin/add-indicators</h3>
+### <h3>`POST` /*:optional-database-name:*/admin/add-indicators</h3>
 
-Add indicators is an admin-based API to add indicators to the cloud node that are then sent to the Blockade installations. Indicators sent in are instantly sent out to users, so be sure double check what is sent and ensure nothing good is blocked. Indicators stored in Blockade are assumed to be MD5 hashed before being sent in. This endpoint will attempt to detect raw indicators and clean them up for the database.
+Add indicators is an admin-based API to add indicators to the cloud node that are then sent to the Blockade installations. Indicators sent in are instantly sent out to users, so be sure double check what is sent and ensure nothing good is blocked. Indicators stored in Blockade are assumed to be MD5 hashed before being sent in. This endpoint will attempt to detect raw indicators and clean them up for the database. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database.
 
 #### Params
 
@@ -151,9 +151,9 @@ $ curl -X POST "http://localhost:5000/admin/add-indicators" \
 ~~~
 
 <a name="admin-get-events"></a>
-### <h3>`GET` /admin/get-events</h3>
+### <h3>`GET` /*:optional-database-name:*/admin/get-events</h3>
 
-Get events stored from the local database.
+Get events stored from the local database. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database.
 
 #### Params
 
@@ -190,9 +190,9 @@ $ curl -X GET "http://localhost:5000/admin/get-events" \
 ~~~
 
 <a name="admin-flush-events"></a>
-### <h3>`DELETE` /admin/flush-events</h3>
+### <h3>`DELETE` /*:optional-database-name:*/admin/flush-events</h3>
 
-Flush events stored from the local database.
+Flush events stored from the local database. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database.
 
 #### Params
 

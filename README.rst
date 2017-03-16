@@ -46,9 +46,9 @@ The following endpoints are exposed via this local node:
 - **/<optional_db_route>/get-indicators**: Lists all the indicators for Blockade to consume
 - **/<optional_db_route>/send-events**: Processes events collected from the browser using Blockade
 - **/admin/add-user**: Add users to the local installation in order to contribute
-- **/admin/add-indicators**: Add indicators to the database from the toolbench_.
-- **/admin/get-events**: Get saved events from the database
-- **/admin/flush-events**: Flush events from the database
+- **/<optional_db_route>/admin/add-indicators**: Add indicators to the database from the toolbench_.
+- **/<optional_db_route>/admin/get-events**: Get saved events from the database
+- **/<optional_db_route>/admin/flush-events**: Flush events from the database
 
 For more documentation, including CURL samples, start the server and browse it.
 
