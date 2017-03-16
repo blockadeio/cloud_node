@@ -8,7 +8,7 @@ import random
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask.ext.misaka import Misaka
+from flask_misaka import Misaka
 from flask_pymongo import PyMongo
 from flask_restful import Resource, Api, reqparse
 
@@ -152,7 +152,7 @@ class ExtensionActions(Resource):
                 'ip': client_ip,
                 'contact': event['contact']
             }
-            ext_mongo.db.events.insert(obj)
+            ext_mongo.db.events.insert_one(obj)
         mesg = "Wrote {} events to the cloud".format(len(events))
         return {'success': True, 'message': mesg}
 
@@ -176,7 +176,7 @@ class IndicatorIngest(Resource):
                 item = hashlib.md5(item).hexdigest()
             obj = {'indicator': item, 'creator': auth['user']['email'],
                    'datetime': current_time}
-            mongo.db.indicators.insert(obj)
+            mongo.db.indicators.insert_one(obj)
         msg = "Wrote {} indicators".format(len(indicators))
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
 
@@ -188,13 +188,22 @@ class EventsManagement(Resource):
     def get(self):
         """Get recorded events."""
         args = parser.parse_args()
-        auth = check_auth(args, role=["analyst", "admin"])
+        auth = check_auth(args, role=['analyst', 'admin'])
         if not auth['success']:
             return auth
-
         output = {'success': True, 'events': list(), 'eventsCount': 0}
         output['events'] = [x for x in mongo.db.events.find({}, {'_id': 0})]
         output['eventsCount'] = len(output['events'])
+        return output
+
+    def delete(self):
+        """Delete recorded events."""
+        args = parser.parse_args()
+        auth = check_auth(args, role=['admin'])
+        if not auth['success']:
+            return auth
+        mongo.db.events.delete_many(dict())
+        output = {'success': True}
         return output
 
 
@@ -226,7 +235,7 @@ class UserManagement(Resource):
             user_role = user_role
         obj = {'email': user_email, 'name': user_name, 'api_key': api_key,
                'role': user_role}
-        mongo.db.users.insert(obj)
+        mongo.db.users.insert_one(obj)
         obj.pop('_id', None)
         return obj
 
@@ -235,7 +244,7 @@ api.add_resource(ExtensionActions, '/<string:sub_id>/get-indicators',
                                    '/<string:sub_id>/send-events',
                                    '/get-indicators', '/send-events')
 api.add_resource(IndicatorIngest, '/admin/add-indicators')
-api.add_resource(EventsManagement, '/admin/get-events')
+api.add_resource(EventsManagement, '/admin/get-events', '/admin/flush-events')
 api.add_resource(UserManagement, '/admin/add-user')
 
 if __name__ == '__main__':
