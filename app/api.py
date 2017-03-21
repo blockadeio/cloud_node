@@ -246,9 +246,11 @@ class UserManagement(Resource):
 api.add_resource(ExtensionActions, '/<string:sub_id>/get-indicators',
                                    '/<string:sub_id>/send-events',
                                    '/get-indicators', '/send-events')
-api.add_resource(IndicatorIngest, '/<string:sub_id>/admin/add-indicators')
+api.add_resource(IndicatorIngest, '/<string:sub_id>/admin/add-indicators',
+                                  '/admin/add-indicators')
 api.add_resource(EventsManagement, '/<string:sub_id>/admin/get-events',
-                                   '/<string:sub_id>/admin/flush-events')
+                                   '/<string:sub_id>/admin/flush-events',
+                                   '/admin/get-events', '/admin/flush-events')
 api.add_resource(UserManagement, '/admin/add-user')
 
 if __name__ == '__main__':
