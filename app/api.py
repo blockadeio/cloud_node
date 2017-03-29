@@ -157,7 +157,7 @@ class ExtensionActions(Resource):
         return {'success': True, 'message': mesg}
 
 
-class IndicatorIngest(Resource):
+class IndicatorManagement(Resource):
 
     """Perform actions related to indicators."""
 
@@ -170,6 +170,8 @@ class IndicatorIngest(Resource):
             return auth
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         indicators = args.get('indicators', list())
+        print indicators
+        indicators = list(set(indicators))
         for item in indicators:
             #  Expecting MD5 indicators, so hash everything else.
             if len(item) != 32:
@@ -180,6 +182,28 @@ class IndicatorIngest(Resource):
             ext_mongo.db.indicators.insert_one(obj)
         msg = "Wrote {} indicators".format(len(indicators))
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
+
+    @db_setup
+    def delete(self, ext_mongo):
+        """Delete indicators from the local database."""
+        args = request.get_json(force=True)
+        auth = check_auth(args, role=['admin'])
+        if not auth['success']:
+            return auth
+        deleted = 0
+        indicators = args.get('indicators', list())
+        indicators = list(set(indicators))
+        for item in indicators:
+            #  Expecting MD5 indicators, so hash everything else.
+            if len(item) != 32:
+                item = extract_fqdn(item)  # Just in case
+                item = hashlib.md5(item).hexdigest()
+            d = ext_mongo.db.events.delete_one({'indicator': item})
+            deleted += d.deleted_count
+        msg = "Deleted {} indicators".format(deleted)
+        output = {'success': True, 'message': msg,
+                  'deleteCount': deleted}
+        return output
 
 
 class EventsManagement(Resource):
@@ -246,8 +270,10 @@ class UserManagement(Resource):
 api.add_resource(ExtensionActions, '/<string:sub_id>/get-indicators',
                                    '/<string:sub_id>/send-events',
                                    '/get-indicators', '/send-events')
-api.add_resource(IndicatorIngest, '/<string:sub_id>/admin/add-indicators',
-                                  '/admin/add-indicators')
+api.add_resource(IndicatorManagement, '/<string:sub_id>/admin/add-indicators',
+                                      '/<string:sub_id>/admin/delete-indicators',
+                                      '/admin/add-indicators',
+                                      '/admin/delete-indicators')
 api.add_resource(EventsManagement, '/<string:sub_id>/admin/get-events',
                                    '/<string:sub_id>/admin/flush-events',
                                    '/admin/get-events', '/admin/flush-events')

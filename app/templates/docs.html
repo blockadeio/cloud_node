@@ -10,6 +10,7 @@ You've stumbled upon a wild Blockade cloud node. This page documents the micro A
 * [/send-events](#send-events)
 * [/admin/add-user](#admin-add-user)
 * [/admin/add-indicators](#admin-add-indicators)
+* [/admin/delete-indicators](#admin-delete-indicators)
 * [/admin/get-events](#admin-get-events)
 * [/admin/flush-events](#admin-flush-events)
 
@@ -146,7 +147,37 @@ $ curl -X POST "http://localhost:5000/admin/add-indicators" \
 ~~~
 {
     "success": true,
-    "message": "Wrote 1 indicators to the cloud"
+    "message": "Wrote 1 indicators to the cloud",
+    "writeCount": 1
+}
+~~~
+
+<a name="admin-delete-indicators"></a>
+### <h3>`DELETE` /*:optional-database-name:*/admin/delete-indicators</h3>
+
+Delete indicators is an admin-based API to remove indicators from the cloud node. This endpoint will attempt to detect raw indicators and clean them up for the database. If the optional database-name is included in the URL path, it will be used inside of the application as the primary database.
+
+#### Params
+
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+* **indicators (*list* of *strings*)**: MD5 hashed indicators to remove
+
+#### Sample Curl
+
+~~~
+$ curl -X DELETE "http://localhost:5000/admin/delete-indicators" \
+    --data '{"email": "info@blockade.io", "api_key": "foobar", "indicators": ["ece4ddec111e1111d98c8b69638e3e18"]}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "success": true,
+    "message": "Deleted 1 indicators to the cloud",
+    "deleteCount": 1
 }
 ~~~
 
