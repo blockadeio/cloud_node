@@ -271,9 +271,9 @@ api.add_resource(ExtensionActions, '/<string:sub_id>/get-indicators',
                                    '/<string:sub_id>/send-events',
                                    '/get-indicators', '/send-events')
 api.add_resource(IndicatorManagement, '/<string:sub_id>/admin/add-indicators',
-                                      '/<string:sub_id>/admin/delete-indicators',
+                                      '/<string:sub_id>/admin/remove-indicators',
                                       '/admin/add-indicators',
-                                      '/admin/delete-indicators')
+                                      '/admin/remove-indicators')
 api.add_resource(EventsManagement, '/<string:sub_id>/admin/get-events',
                                    '/<string:sub_id>/admin/flush-events',
                                    '/admin/get-events', '/admin/flush-events')
