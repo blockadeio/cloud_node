@@ -9,6 +9,7 @@ You've stumbled upon a wild Blockade cloud node. This page documents the micro A
 * [/get-indicators](#get-indicators)
 * [/send-events](#send-events)
 * [/admin/add-user](#admin-add-user)
+* [/admin/validate-user](#admin-validate-user)
 * [/admin/add-indicators](#admin-add-indicators)
 * [/admin/remove-indicators](#admin-remove-indicators)
 * [/admin/get-events](#admin-get-events)
@@ -120,6 +121,33 @@ $ curl -X POST "http://localhost:5000/admin/add-user" \
     "role" : "admin",
     "email" : "info@blockade.io",
     "name" : "Blockade"
+}
+~~~
+
+<a name="admin-validate-user"></a>
+### <h3>`GET` /admin/validate-user</h3>
+
+Validate user against the local installation.
+
+#### Params
+
+* **email (*string*)**: Email of the administrator
+* **api_key (*string*)**: API key of the administrator
+
+#### Sample Curl
+
+~~~
+$ curl -X GET "http://localhost:5000/admin/validate-user" \
+    --data '{"email": "info@blockade.io", "api_key": "foobar"}' \
+    -H "Content-Type: application/json"
+~~~
+
+#### Response
+
+~~~
+{
+    "message": "User is valid.",
+    "success": true
 }
 ~~~
 

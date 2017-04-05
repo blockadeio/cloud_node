@@ -238,6 +238,14 @@ class UserManagement(Resource):
 
     """Perform actions related to users."""
 
+    def get(self):
+        """Validate users to confirm their account."""
+        args = parser.parse_args()
+        auth = check_auth(args, role=["admin"])
+        if not auth['success']:
+            return auth
+        return {'success': True, 'message': 'User is valid.'}
+
     def post(self):
         """Added new users to the system."""
         args = parser.parse_args()
@@ -246,7 +254,7 @@ class UserManagement(Resource):
             return auth
         user_email = args.get('user_email', None)
         if not user_email:
-            msg = "Missing email parameter in your request."
+            msg = "Missing user_email parameter in your request."
             return {'success': False, 'message': msg}
         user_role = args.get('user_role', None)
         if not user_role:
@@ -277,7 +285,7 @@ api.add_resource(IndicatorManagement, '/<string:sub_id>/admin/add-indicators',
 api.add_resource(EventsManagement, '/<string:sub_id>/admin/get-events',
                                    '/<string:sub_id>/admin/flush-events',
                                    '/admin/get-events', '/admin/flush-events')
-api.add_resource(UserManagement, '/admin/add-user')
+api.add_resource(UserManagement, '/admin/add-user', '/admin/validate-user')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
