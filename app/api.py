@@ -173,11 +173,12 @@ class IndicatorManagement(Resource):
         print indicators
         indicators = list(set(indicators))
         for item in indicators:
-            #  Expecting MD5 indicators, so hash everything else.
-            if len(item) != 32:
-                item = extract_fqdn(item)  # Just in case
-                item = hashlib.md5(item).hexdigest()
-            obj = {'indicator': item, 'creator': auth['user']['email'],
+            # We expect IOCs in clear.
+            item = extract_fqdn(item)
+            # We hash it.
+            hashed = hashlib.md5(item).hexdigest()
+            # We use the hashed version as "indicator".
+            obj = {'indicator': hashed, 'orig': item, 'creator': auth['user']['email'],
                    'datetime': current_time}
             ext_mongo.db.indicators.insert_one(obj)
         msg = "Wrote {} indicators".format(len(indicators))
