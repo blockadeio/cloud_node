@@ -4,6 +4,7 @@
 import datetime
 import hashlib
 import os
+import re
 import random
 from flask import Flask
 from flask import render_template
@@ -43,7 +44,7 @@ def docs():
     """Render the documentation."""
     return render_template('docs.html')
 
-
+# TODO: this should be replaced with urlparse.
 def extract_fqdn(url):
     """Extract the FQDN from a URL."""
     replace = ['http://', 'https://']
@@ -170,17 +171,22 @@ class IndicatorManagement(Resource):
             return auth
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         indicators = args.get('indicators', list())
-        print indicators
         indicators = list(set(indicators))
         for item in indicators:
-            # We expect IOCs in clear.
-            item = extract_fqdn(item)
-            # We hash it.
-            hashed = hashlib.md5(item).hexdigest()
-            # We use the hashed version as "indicator".
-            obj = {'indicator': hashed, 'orig': item, 'creator': auth['user']['email'],
-                   'datetime': current_time}
+            # Check if the indicator is already hashed.
+            if re.search(r"([a-fA-F\d]{32})", item):
+                orig = ""
+                hashed = item
+            # Otherwise it's an IOC in clear, we hash it and store the original.
+            else:
+                orig = extract_fqdn(item)
+                # We hash it.
+                hashed = hashlib.md5(orig).hexdigest()
+
+            obj = {'indicator': hashed, 'orig': orig,
+                   'creator': auth['user']['email'], 'datetime': current_time}
             ext_mongo.db.indicators.insert_one(obj)
+
         msg = "Wrote {} indicators".format(len(indicators))
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
 
