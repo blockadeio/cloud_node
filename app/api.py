@@ -172,6 +172,8 @@ class IndicatorManagement(Resource):
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         indicators = args.get('indicators', list())
         indicators = list(set(indicators))
+        tags = args.get('tags', list())
+        tags = list(set(tags))
         for item in indicators:
             # Check if the indicator is already hashed.
             if re.search(r"([a-fA-F\d]{32})", item):
@@ -183,7 +185,7 @@ class IndicatorManagement(Resource):
                 # We hash it.
                 hashed = hashlib.md5(orig).hexdigest()
 
-            obj = {'indicator': hashed, 'orig': orig,
+            obj = {'indicator': hashed, 'orig': orig, 'tags': tags,
                    'creator': auth['user']['email'], 'datetime': current_time}
             ext_mongo.db.indicators.insert_one(obj)
 
