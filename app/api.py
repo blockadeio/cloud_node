@@ -173,7 +173,6 @@ class IndicatorManagement(Resource):
         indicators = args.get('indicators', list())
         indicators = list(set(indicators))
         tags = args.get('tags', list())
-        tags = list(set(tags))
         for item in indicators:
             # Check if the indicator is already hashed.
             if re.search(r"([a-fA-F\d]{32})", item):
