@@ -184,9 +184,13 @@ class IndicatorManagement(Resource):
                 # We hash it.
                 hashed = hashlib.md5(orig).hexdigest()
 
-            obj = {'indicator': hashed, 'orig': orig, 'tags': tags,
-                   'creator': auth['user']['email'], 'datetime': current_time}
-            ext_mongo.db.indicators.insert_one(obj)
+            # Look-up hashed IOC.
+            record = ext_mongo.db.indicators.find_one({'indicator': hashed})
+            # Only insert if there wasn't a previous record of the same IOC.
+            if not record:
+                obj = {'indicator': hashed, 'orig': orig, 'tags': tags,
+                       'creator': auth['user']['email'], 'datetime': current_time}
+                ext_mongo.db.indicators.insert_one(obj)
 
         msg = "Wrote {} indicators".format(len(indicators))
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
