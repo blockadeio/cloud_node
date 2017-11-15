@@ -175,7 +175,7 @@ class IndicatorManagement(Resource):
         tags = args.get('tags', list())
         for item in indicators:
             # Check if the indicator is already hashed.
-            if re.search(r"([a-fA-F\d]{32})", item):
+            if re.search(r"^([a-fA-F\d]{32})$", item):
                 orig = ""
                 hashed = item
             # Otherwise it's an IOC in clear, we hash it and store the original.
