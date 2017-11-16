@@ -4,7 +4,6 @@
 import datetime
 import hashlib
 import os
-import re
 import random
 from flask import Flask
 from flask import render_template
@@ -44,7 +43,7 @@ def docs():
     """Render the documentation."""
     return render_template('docs.html')
 
-# TODO: this should be replaced with urlparse.
+
 def extract_fqdn(url):
     """Extract the FQDN from a URL."""
     replace = ['http://', 'https://']
@@ -171,27 +170,16 @@ class IndicatorManagement(Resource):
             return auth
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         indicators = args.get('indicators', list())
+        print indicators
         indicators = list(set(indicators))
-        tags = args.get('tags', list())
         for item in indicators:
-            # Check if the indicator is already hashed.
-            if re.search(r"^([a-fA-F\d]{32})$", item):
-                orig = ""
-                hashed = item
-            # Otherwise it's an IOC in clear, we hash it and store the original.
-            else:
-                orig = extract_fqdn(item)
-                # We hash it.
-                hashed = hashlib.md5(orig).hexdigest()
-
-            # Look-up hashed IOC.
-            record = ext_mongo.db.indicators.find_one({'indicator': hashed})
-            # Only insert if there wasn't a previous record of the same IOC.
-            if not record:
-                obj = {'indicator': hashed, 'orig': orig, 'tags': tags,
-                       'creator': auth['user']['email'], 'datetime': current_time}
-                ext_mongo.db.indicators.insert_one(obj)
-
+            #  Expecting MD5 indicators, so hash everything else.
+            if len(item) != 32:
+                item = extract_fqdn(item)  # Just in case
+                item = hashlib.md5(item).hexdigest()
+            obj = {'indicator': item, 'creator': auth['user']['email'],
+                   'datetime': current_time}
+            ext_mongo.db.indicators.insert_one(obj)
         msg = "Wrote {} indicators".format(len(indicators))
         return {'success': True, 'message': msg, 'writeCount': len(indicators)}
 
