@@ -173,27 +173,26 @@ class IndicatorManagement(Resource):
         indicators = args.get('indicators', list())
         indicators = list(set(indicators))
         tags = args.get('tags', list())
+
+        inserted = 0
         for item in indicators:
-            # Check if the indicator is already hashed.
+            original = None
             if re.search(r"^([a-fA-F\d]{32})$", item):
-                orig = ""
                 hashed = item
-            # Otherwise it's an IOC in clear, we hash it and store the original.
             else:
-                orig = extract_fqdn(item)
-                # We hash it.
-                hashed = hashlib.md5(orig).hexdigest()
+                original = extract_fqdn(item)
+                hashed = hashlib.md5(original).hexdigest()
 
-            # Look-up hashed IOC.
             record = ext_mongo.db.indicators.find_one({'indicator': hashed})
-            # Only insert if there wasn't a previous record of the same IOC.
             if not record:
-                obj = {'indicator': hashed, 'orig': orig, 'tags': tags,
-                       'creator': auth['user']['email'], 'datetime': current_time}
+                obj = {'indicator': hashed, 'original': original, 'tags': tags,
+                       'creator': auth['user']['email'],
+                       'datetime': current_time}
                 ext_mongo.db.indicators.insert_one(obj)
+                inserted += 1
 
-        msg = "Wrote {} indicators".format(len(indicators))
-        return {'success': True, 'message': msg, 'writeCount': len(indicators)}
+        msg = "Wrote {} indicators".format(inserted)
+        return {'success': True, 'message': msg, 'writeCount': inserted}
 
     @db_setup
     def delete(self, ext_mongo):
