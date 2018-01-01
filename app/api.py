@@ -21,13 +21,13 @@ if os.environ.get('MONGO_HOST', None):
 else:
     CONST_MONGO_HOST = '127.0.0.1'
 
-app = Flask(__name__)
-app.config['MONGO_DBNAME'] = CONST_CORE_DB
-app.config['MONGO_HOST'] = CONST_MONGO_HOST
+flask_app = Flask(__name__)
+flask_app.config['MONGO_DBNAME'] = CONST_CORE_DB
+flask_app.config['MONGO_HOST'] = CONST_MONGO_HOST
 
-api = Api(app)
-mongo = PyMongo(app)
-markdown = Misaka(app, wrap=True, fenced_code=True)
+api = Api(flask_app)
+mongo = PyMongo(flask_app)
+markdown = Misaka(flask_app, wrap=True, fenced_code=True)
 
 parser = reqparse.RequestParser()
 parser.add_argument('api_key')
@@ -39,7 +39,7 @@ parser.add_argument('user_name')
 parser.add_argument('user_role')
 
 
-@app.route('/')
+@flask_app.route('/')
 def docs():
     """Render the documentation."""
     return render_template('docs.html')
@@ -87,15 +87,15 @@ def db_setup(f):
             sub_id = CONST_CORE_DB
         # Silently drop any non-DB name characters
         sub_id = ''.join(e for e in sub_id if e.isalnum() or e == '_')
-        app.config[CONST_EXT_KEY + "_DBNAME"] = sub_id
-        app.config[CONST_EXT_KEY + '_HOST'] = CONST_MONGO_HOST
-        ext_mongo = PyMongo(app, config_prefix=CONST_EXT_KEY)
+        flask_app.config[CONST_EXT_KEY + "_DBNAME"] = sub_id
+        flask_app.config[CONST_EXT_KEY + '_HOST'] = CONST_MONGO_HOST
+        ext_mongo = PyMongo(flask_app, config_prefix=CONST_EXT_KEY)
         results = f(self, ext_mongo)
-        for key in app.config.keys():
+        for key in flask_app.config.keys():
             if not key.startswith(CONST_EXT_KEY):
                 continue
-            app.config.pop(key, None)
-        app.extensions[CONST_PYMONGO].pop(CONST_EXT_KEY, None)
+            flask_app.config.pop(key, None)
+        flask_app.extensions[CONST_PYMONGO].pop(CONST_EXT_KEY, None)
         return results
     return wrapper
 
@@ -222,9 +222,9 @@ class EventsManagement(Resource):
     """Perform actions related to events."""
 
     @db_setup
-    def get(self, ext_mongo):
+    def post(self, ext_mongo):
         """Get recorded events."""
-        args = parser.parse_args()
+        args = request.get_json(force=True)
         auth = check_auth(args, role=['analyst', 'admin'])
         if not auth['success']:
             return auth
@@ -297,6 +297,3 @@ api.add_resource(EventsManagement, '/<string:sub_id>/admin/get-events',
                                    '/<string:sub_id>/admin/flush-events',
                                    '/admin/get-events', '/admin/flush-events')
 api.add_resource(UserManagement, '/admin/add-user', '/admin/validate-user')
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')

@@ -7,3 +7,4 @@ setuptools-*
 venv/
 .pypirc
 *.pem
+*.DS_Store
